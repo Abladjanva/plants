@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:plants/models/plants_model.dart';
-import 'dart:convert';
-import '../model/plants_model.dart'; // or wherever you place it
+import 'package:plants/repositories/plant_repo.dart';
 
 class PlantProvider with ChangeNotifier {
-  List<PlantModel> _plants = [];
+  final List<Plant> _plants = [];
+  String? _error;
+  bool _isLoading = false;
+
   Set<int> _favorites = {};
 
-  List<PlantModel> get plants => _plants;
+  List<Plant> get plants => _plants;
   Set<int> get favorites => _favorites;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
 
   Future<void> fetchPlants() async {
-    final url = Uri.parse('https://api.sampleapis.com/health/professions');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final List decoded = json.decode(response.body);
-      _plants = decoded
-          .take(4)
-          .map((json) => PlantModel.fromJson(json))
-          .toList();
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final result = await PlantRepo().fetchPlants();
+      _plants.addAll(result);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }

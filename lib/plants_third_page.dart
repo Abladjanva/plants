@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:plants/db.dart';
 import 'package:plants/plants_first_page.dart';
-import 'dart:convert';
 import 'package:provider/provider.dart';
+
 import 'plant_provider.dart';
-import 'plants_Info.dart';
 
 class PlantsThirdPage extends StatefulWidget {
   const PlantsThirdPage({super.key});
@@ -15,11 +12,12 @@ class PlantsThirdPage extends StatefulWidget {
 }
 
 class _PlantsThirdPageState extends State<PlantsThirdPage> {
-  Future<List<dynamic>> fetchPlants() async {
-    final response = await http
-        .get(Uri.parse('https://api.sampleapis.com/health/professions'));
-    final List data = json.decode(response.body);
-    return data.where((e) => [1, 2, 3, 4].contains(e['id'])).toList();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PlantProvider>().fetchPlants();
+    });
   }
 
   @override
@@ -82,17 +80,16 @@ class _PlantsThirdPageState extends State<PlantsThirdPage> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<dynamic>>(
-              future: fetchPlants(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+            child: Consumer<PlantProvider>(
+              builder: (context, provider, _) {
+                if (provider.isLoading) {
+                  return Center(child: CircularProgressIndicator.adaptive());
                 }
-
-                final items = snapshot.data!;
-
+                if (provider.error != null) {
+                  return Center(child: Text(provider.error!));
+                }
                 return GridView.builder(
-                  itemCount: items.length,
+                  itemCount: provider.plants.length,
                   padding: const EdgeInsets.all(30),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -101,96 +98,83 @@ class _PlantsThirdPageState extends State<PlantsThirdPage> {
                     childAspectRatio: 3 / 4.8,
                   ),
                   itemBuilder: (context, index) {
-                    final plant = items[index];
-                    final isFav = favoritesProvider.isFavorite(plant['id']);
+                    final plant = provider.plants[index];
+                    final isFav = favoritesProvider.isFavorite(plant.id);
 
-                    return Card(
-                      child: Column(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PlantsInfo(
-                                    plantssInfo: plant,
-                                    index: index,
+                    return InkWell(
+                      onTap: () {
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => PlantsInfo(
+                        //       plantssInfo: plant,
+                        //       index: index,
+                        //     ),
+                        //   ),
+                        // );
+                      },
+                      child: Card(
+                        color: Colors.white,
+                        child: Stack(
+                          children: [
+                            Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(12.0),
+                                  ),
+                                  child: Image(
+                                    image: NetworkImage(
+                                        'https://picsum.photos/200'),
                                   ),
                                 ),
-                              );
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(35),
-                              child: Container(
-                                  height: 250,
-                                  width: 195,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30),
-                                      color: Colors.white),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(35),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.medical_services,
-                                        color: Color(0xFF4A6D49),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        plant.shortName,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.clip,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w300,
+                                          color: Color(0xFF4A6D49),
+                                        ),
                                       ),
-                                    ),
-                                  )),
+                                      Text(
+                                        plant.longName,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w300,
+                                          color: Color(0xFF4A6D49),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: SizedBox(
-                              
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 10.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          plant['short_name'] ?? '',
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w300,
-                                            color: Color(0xFF4A6D49),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          child: Text(
-                                            plant['long_name'] ?? '',
-                                            style: const TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w300,
-                                              color: Color(0xFF4A6D49),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        favoritesProvider
-                                            .toggleFavorite(plant['id']);
-                                      },
-                                      icon: Icon(
-                                        isFav
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: isFav
-                                            ? const Color(0xFF4A6D49)
-                                            : Colors.grey,
-                                      ),
-                                    ),
-                                  ],
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: IconButton(
+                                onPressed: () {
+                                  favoritesProvider.toggleFavorite(plant.id);
+                                },
+                                icon: Icon(
+                                  Icons.favorite,
+                                  color: isFav
+                                      ? const Color(0xFF4A6D49)
+                                      : Colors.white,
                                 ),
                               ),
                             ),
-                          )
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
