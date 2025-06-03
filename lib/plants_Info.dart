@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plants/db.dart';
+import 'package:plants/plants_cash.dart';
+import 'package:plants/plants_pin.dart';
 import 'package:plants/plants_third_page.dart';
 import 'package:hive/hive.dart';
 import 'dart:convert';
@@ -20,7 +22,8 @@ class _PlantsInfoState extends State<PlantsInfo> {
   Map<String, dynamic>? plant;
 
   Future<void> fetchPlantData() async {
-    final response = await http.get(Uri.parse('https://api.sampleapis.com/health/professions'));
+    final response = await http
+        .get(Uri.parse('https://api.sampleapis.com/health/professions'));
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
       if (widget.index < data.length) {
@@ -33,7 +36,7 @@ class _PlantsInfoState extends State<PlantsInfo> {
     }
   }
 
-  void toggleFavorite() {
+  void pFavorite() {
     final box = Hive.box('favorites');
     final key = plant?['short_name'];
     if (key != null) {
@@ -124,10 +127,13 @@ class _PlantsInfoState extends State<PlantsInfo> {
                               color: Color(0xFF4A6D49)),
                         ),
                         IconButton(
-                          onPressed: toggleFavorite,
+                          onPressed: pFavorite,
                           icon: Icon(
-                            isFavorited ? Icons.favorite : Icons.favorite_border,
-                            color: isFavorited ? Color(0xFF4A6D49) : Colors.grey,
+                            isFavorited
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color:
+                                isFavorited ? Color(0xFF4A6D49) : Colors.grey,
                             size: 28,
                           ),
                         ),
@@ -141,23 +147,24 @@ class _PlantsInfoState extends State<PlantsInfo> {
                                 color: Color(0xFF4A6D49),
                                 fontSize: 17,
                                 fontWeight: FontWeight.w400)),
-                        ...['6 inch', '8 inch', '10 inch'].map((size) => Container(
-                              height: 40,
-                              width: 85,
-                              color: Colors.grey.shade300,
-                              child: TextButton(
-                                onPressed: () {},
-                                child: Center(
-                                  child: Text(
-                                    size,
-                                    style: TextStyle(
-                                        color: Color(0xFF4A6D49),
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w400),
+                        ...['6 inch', '8 inch', '10 inch']
+                            .map((size) => Container(
+                                  height: 40,
+                                  width: 85,
+                                  color: Colors.grey.shade300,
+                                  child: TextButton(
+                                    onPressed: () {},
+                                    child: Center(
+                                      child: Text(
+                                        size,
+                                        style: TextStyle(
+                                            color: Color(0xFF4A6D49),
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ))
+                                ))
                       ],
                     ),
                     SizedBox(height: 20),
@@ -216,23 +223,33 @@ class _PlantsInfoState extends State<PlantsInfo> {
                     SizedBox(height: 20),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: Container(
-                        height: 50,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: Color(0xFF4A6D49),
-                        ),
-                        child: Center(
-                          child: TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                "Add to cart",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w400),
-                              )),
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PlantsCash()));
+                          });
+                        },
+                        child: Container(
+                          height: 50,
+                          width: 150,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Color(0xFF4A6D49),
+                          ),
+                          child: Center(
+                            child: TextButton(
+                                onPressed: () {},
+                                child: Text(
+                                  "Add to cart",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w400),
+                                )),
+                          ),
                         ),
                       ),
                     ),

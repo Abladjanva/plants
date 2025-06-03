@@ -66,6 +66,14 @@ class _PlantsCashState extends State<PlantsCash> {
                     ),
                     Column(spacing: 40, children: [
                       InkWell(
+                        onTap: () {
+                          setState(() {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PlantsPin()));
+                          });
+                        },
                         child: Container(
                           height: 65,
                           decoration: BoxDecoration(

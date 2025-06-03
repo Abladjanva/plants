@@ -143,47 +143,50 @@ class _PlantsThirdPageState extends State<PlantsThirdPage> {
                                 horizontal: 10, vertical: 5),
                             child: SizedBox(
                               
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        plant['short_name'] ?? '',
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w300,
-                                          color: Color(0xFF4A6D49),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        child: Text(
-                                          plant['long_name'] ?? '',
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 10.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          plant['short_name'] ?? '',
                                           style: const TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 20,
                                             fontWeight: FontWeight.w300,
                                             color: Color(0xFF4A6D49),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      favoritesProvider
-                                          .toggleFavorite(plant['id']);
-                                    },
-                                    icon: Icon(
-                                      isFav
-                                          ? Icons.favorite
-                                          : Icons.favorite_border,
-                                      color: isFav
-                                          ? const Color(0xFF4A6D49)
-                                          : Colors.grey,
+                                        SizedBox(
+                                          child: Text(
+                                            plant['long_name'] ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w300,
+                                              color: Color(0xFF4A6D49),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                    IconButton(
+                                      onPressed: () {
+                                        favoritesProvider
+                                            .toggleFavorite(plant['id']);
+                                      },
+                                      icon: Icon(
+                                        isFav
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: isFav
+                                            ? const Color(0xFF4A6D49)
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           )
